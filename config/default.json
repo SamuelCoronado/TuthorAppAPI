@@ -1,4 +1,4 @@
 {
-    "mongoURI": "mongodb://localhost:27017/tutor-app",
+    "mongoURI": "mongodb+srv://Sam:shadow2000@tutor-app-ljkdd.mongodb.net/test?retryWrites=true&w=majority",
     "jwtSecret": "MySecretToken"
 }
