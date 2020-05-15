@@ -6,10 +6,29 @@ const config = require('config')
 const {check, validationResult} = require('express-validator');
 const auth = require('../../middleware/auth');
 const mongoose = require('mongoose');
-
+const multer = require('multer');
+const path = require('path');
 const User = require('../../models/User');
-const Session = require('../../models/Session')
-const Tutoring = require('../../models/Tutoring')
+const Session = require('../../models/Session');
+const Tutoring = require('../../models/Tutoring');
+
+const storage = multer.diskStorage({
+    destination: path.join(__dirname, '../../public/images'),
+    filename:(req, file, callback) => {
+        callback(null,req.user.id+'.'+file.mimetype.split('/')[1])
+    }
+})
+
+const uploadMiddleware = multer({
+    storage,
+    fileFilter: (req,file, callback) => {
+        const filetypes = ['.jpg','.png','.jpeg']
+        const extname = path.extname(file.originalname);
+        console.log(extname);
+        if(filetypes.includes(extname)) return callback(null, true);
+        callback('File must be a valid image type');
+    }
+}).single('image')
 
 userRouter.get('/emails', async(req, res) => {
     try {
@@ -98,6 +117,19 @@ userRouter.post('/', [
     }
 )
 
+userRouter.post('/image-upload',auth, uploadMiddleware, async(req, res) => {
+
+   try {
+       const imageName = await User.findByIdAndUpdate({_id:req.user.id},{profileImage: req.file.filename},{new: true, useFindAndModify:false}).select('profileImage -_id');
+       res.status(200).send(imageName)
+   } catch (err) {
+       console.log(err);
+       
+   }
+   
+    
+})
+
 userRouter.get('/:userId', async(req, res) => {
 
     try {
@@ -172,8 +204,8 @@ userRouter.post('/:userId/opinionsAsTutor', auth, async(req, res) => {
         const newOpinion = {
             student,
             studentName: studentName.name,
-            profileImage: req.user.id,
-            session: mongoose.Types.ObjectId(req.user.session),
+            profileImage: req.body.profileImage,
+            session: mongoose.Types.ObjectId(req.body.session),
             sessionName: req.body.sessionName,
             opinion,
             rating
@@ -198,20 +230,30 @@ userRouter.post('/:userId/opinionsAsStudent', auth, async(req, res) => {
 
     try {
 
-        const opinions = await User.findById(req.body.student).select('opinionsAsStudent');
-        if(opinions.includes(req.body.session)) throw new Error('Session was already rated') 
-
+        const opinions = await User.findById(req.body.student).select('opinionsAsStudent -_id');
+        if(opinions.opinionsAsStudent.includes(req.body.session)) throw new Error('Session was already rated')
         const tutor = mongoose.Types.ObjectId(req.user.id);
+        const studentId = mongoose.Types.ObjectId(req.body.student);
         const {opinion, rating} = req.body
+        const tutorName = await User.findById(req.user.id).select('name -_id');
+        console.log(req.body, ':v');
+        
 
         const newOpinion = {
             tutor,
+            tutorName: tutorName.name,
+            profileImage: req.body.profileImage,
+            session: mongoose.Types.ObjectId(req.body.session),
+            sessionName: req.body.sessionName,
             opinion,
             rating
         }
         
-        const updateUser = await User.findByIdAndUpdate({_id: req.params.userId},{$push:{opinionsAsStudent:newOpinion}},{new: true, useFindAndModify: false});
-        res.status(200).json(updateUser)
+        await User.findByIdAndUpdate(studentId, {$push:{opinionsAsStudent: newOpinion}},{new:true, useFindAndModify: false}).exec()
+        await Session.findByIdAndUpdate({_id: req.body.session}, {status: 'finished'}, {new: true, useFindAndModify: false}).exec()
+        
+        const updatedSessions = await Session.find({tutor, status: 'active'})
+        res.status(200).json(updatedSessions)
 
     } catch (err) {
         console.error(err);

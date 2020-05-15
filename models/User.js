@@ -11,6 +11,9 @@ const UserSchema = new Schema({
         required: true,
         unique: true
     },
+    profileImage:{
+        type: String
+    },
     password: {
         type: String,
         required: true
@@ -69,9 +72,21 @@ const UserSchema = new Schema({
            type: Schema.Types.ObjectId,
            ref: 'user'
        },
+       tutorName:{
+           type: String,
+           required: true
+       },
+       profileImage:{
+           type: String,
+           required: true
+       },
        session:{
         type: Schema.Types.ObjectId,
         ref: 'session'
+       },
+       sessionName:{
+           type: String,
+           required: true
        },
        opinion: {
            type: String
