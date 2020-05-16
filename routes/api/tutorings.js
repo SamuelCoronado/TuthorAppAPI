@@ -84,7 +84,7 @@ tutoringRouter.post('/:tutoringId/session', auth, async(req, res) => {
      try {
         const session =  new Session(req.body);
         await session.save();
-        const sessions = await Session.find({tutor: req.body.tutor, date: req.body.date}).select('hours location');
+        const sessions = await Session.find({student: req.body.student, status: 'active'})
         console.log(sessions);
         res.status(200).send(sessions)
     } catch (error) {
