@@ -188,6 +188,31 @@ userRouter.put('/about', auth, async(req, res) => {
     }
 });
 
+userRouter.put('/updateSessions', auth, async(req, res) => {
+    try {
+        
+        let sessionsToSend = [];
+        const sessions = await Session.find({$or:[{tutor: req.user.id}, {student: req.user.id}], status: 'active'});
+        sessions.forEach( async(session) => {
+            const now = new Date(Date.now());
+            if(now > session.date){
+                session.status = 'finished';
+                await session.save();
+                sessionsToSend.push(session);
+            }
+        });
+
+        if(sessionsToSend.length === 0){
+            res.status(200);
+            return;
+        }
+        res.status(200).send(sessionsToSend);
+
+    } catch (err) {
+        console.log(err);
+    }
+})
+
 userRouter.post('/:userId/opinionsAsTutor', auth, async(req, res) => {
 
     try {
@@ -216,7 +241,7 @@ userRouter.post('/:userId/opinionsAsTutor', auth, async(req, res) => {
         console.log(tutor);
         
          await User.findByIdAndUpdate(tutorId,{$push:{opinionsAsTutor:newOpinion}},{new: true, useFindAndModify: false}).exec()
-         await Session.findByIdAndUpdate({_id: req.body.session},{status: 'finished'},{new: true, useFindAndModify: false}).exec()
+         await Session.findByIdAndUpdate({_id: req.body.session},{ratedByStudent: true},{new: true, useFindAndModify: false}).exec()
         
         const updatedSessions = await Session.find({student, status:'active'})
         res.status(200).json(updatedSessions)
@@ -250,7 +275,7 @@ userRouter.post('/:userId/opinionsAsStudent', auth, async(req, res) => {
         }
         
         await User.findByIdAndUpdate(studentId, {$push:{opinionsAsStudent: newOpinion}},{new:true, useFindAndModify: false}).exec()
-        await Session.findByIdAndUpdate({_id: req.body.session}, {status: 'finished'}, {new: true, useFindAndModify: false}).exec()
+        await Session.findByIdAndUpdate({_id: req.body.session}, {ratedByTutor: true}, {new: true, useFindAndModify: false}).exec()
         
         const updatedSessions = await Session.find({tutor, status: 'active'})
         res.status(200).json(updatedSessions)

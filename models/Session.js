@@ -34,6 +34,14 @@ const SessionSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user'
     },
+    ratedByTutor:{
+        type: Boolean,
+        default: false
+    },
+    ratedByStudent:{
+        type: Boolean,
+        default: false
+    },
     totalPrice: {
         type: Number,
         required: true
@@ -49,7 +57,7 @@ const SessionSchema = new Schema({
     },
     status:{
         type: String,
-        enum:['active', 'finished', 'cancelled'],
+        enum:['active', 'finished'],
         default: 'active'
     },
     date:{
