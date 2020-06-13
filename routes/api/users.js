@@ -236,15 +236,12 @@ userRouter.post('/:userId/opinionsAsTutor', auth, async(req, res) => {
             rating
         }
 
-        console.log(newOpinion);
-        const tutor = await User.findById(tutorId)
-        console.log(tutor);
-        
          await User.findByIdAndUpdate(tutorId,{$push:{opinionsAsTutor:newOpinion}},{new: true, useFindAndModify: false}).exec()
          await Session.findByIdAndUpdate({_id: req.body.session},{ratedByStudent: true},{new: true, useFindAndModify: false}).exec()
         
-        const updatedSessions = await Session.find({student, status:'active'})
-        res.status(200).json(updatedSessions)
+        const updatedSessions = await Session.find({student, ratedByStudent:false}); //Sessions that haven't been given
+        const recordTakenSessions = await Session.find({student, ratedByStudent: true}); //Sessions that already were given an rated 
+        res.status(200).json({updatedSessions, recordTakenSessions})
 
     } catch (err) {
         console.error(err);
@@ -261,9 +258,7 @@ userRouter.post('/:userId/opinionsAsStudent', auth, async(req, res) => {
         const studentId = mongoose.Types.ObjectId(req.body.student);
         const {opinion, rating} = req.body
         const tutorName = await User.findById(req.user.id).select('name -_id');
-        console.log(req.body, ':v');
         
-
         const newOpinion = {
             tutor,
             tutorName: tutorName.name,
@@ -277,8 +272,9 @@ userRouter.post('/:userId/opinionsAsStudent', auth, async(req, res) => {
         await User.findByIdAndUpdate(studentId, {$push:{opinionsAsStudent: newOpinion}},{new:true, useFindAndModify: false}).exec()
         await Session.findByIdAndUpdate({_id: req.body.session}, {ratedByTutor: true}, {new: true, useFindAndModify: false}).exec()
         
-        const updatedSessions = await Session.find({tutor, status: 'active'})
-        res.status(200).json(updatedSessions)
+        const updatedSessions = await Session.find({tutor, ratedByTutor: false}); //Sessions that haven't been given
+        const recordGivenSessions = await Session.find({tutor, ratedByTutor: true}); //Sessions that already were given an rated 
+        res.status(200).json({updatedSessions, recordGivenSessions});
 
     } catch (err) {
         console.error(err);
