@@ -17,9 +17,14 @@ authRouter.get('/', auth, async(req,res) => {
         
         const user = await User.findById(req.user.id).select('-password');
         const userTutorings = await Tutoring.find({tutor: user._id});
+        
+        //Update the following part of code so it will only execute a query 
         const sessions = {
-            sessionsToTake: await Session.find({student: user._id, status:'active'}),
-            sessionsToGive: await Session.find({tutor: user._id, status: 'active'})
+            sessionsToTake: await Session.find({student: user._id, ratedByStudent: false}),
+            sessionsToGive: await Session.find({tutor: user._id, ratedByTutor: false}),
+            takenSessions = await Session.find({student: user._id, ratedByStudent: true }),
+            givenSessions = await Session.find({student: user._id, ratedByTutor: true})
+
         }
         
         res.json({user, userTutorings, sessions});

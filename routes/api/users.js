@@ -240,8 +240,8 @@ userRouter.post('/:userId/opinionsAsTutor', auth, async(req, res) => {
          await Session.findByIdAndUpdate({_id: req.body.session},{ratedByStudent: true},{new: true, useFindAndModify: false}).exec()
         
         const updatedSessions = await Session.find({student, ratedByStudent:false}); //Sessions that haven't been given
-        const recordTakenSessions = await Session.find({student, ratedByStudent: true}); //Sessions that already were given an rated 
-        res.status(200).json({updatedSessions, recordTakenSessions})
+        const takenSessions = await Session.find({student, ratedByStudent: true}); //Sessions that already were given an rated 
+        res.status(200).json({updatedSessions, takenSessions});
 
     } catch (err) {
         console.error(err);
@@ -273,8 +273,8 @@ userRouter.post('/:userId/opinionsAsStudent', auth, async(req, res) => {
         await Session.findByIdAndUpdate({_id: req.body.session}, {ratedByTutor: true}, {new: true, useFindAndModify: false}).exec()
         
         const updatedSessions = await Session.find({tutor, ratedByTutor: false}); //Sessions that haven't been given
-        const recordGivenSessions = await Session.find({tutor, ratedByTutor: true}); //Sessions that already were given an rated 
-        res.status(200).json({updatedSessions, recordGivenSessions});
+        const givenSessions = await Session.find({tutor, ratedByTutor: true}); //Sessions that already were given an rated 
+        res.status(200).json({updatedSessions, givenSessions});
 
     } catch (err) {
         console.error(err);
