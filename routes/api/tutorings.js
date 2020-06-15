@@ -84,7 +84,7 @@ tutoringRouter.post('/:tutoringId/session', auth, async(req, res) => {
      try {
         const session =  new Session(req.body);
         await session.save();
-        const sessions = await Session.find({student: req.body.student, ratedByStudent:false})
+        const sessions = await Session.find({student: req.body.student, ratedByStudent:false })
         console.log(sessions);
         res.status(200).send(sessions)
     } catch (error) {

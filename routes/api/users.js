@@ -290,6 +290,17 @@ userRouter.get('/:userId/sessions', auth, async(req, res) => {
     } catch (err) {
         console.log(err);
     }
+});
+
+userRouter.get('/:userId/profileImage', async(req,res) => {
+    try {
+        
+        const profileImage = await User.findById(req.params.userId).select('profileImage -_id');
+        res.send(profileImage);
+
+    } catch (err) {
+        console.log(err);
+    }
 })
 
 
