@@ -13,7 +13,9 @@ const Session = require('../../models/Session');
 const Tutoring = require('../../models/Tutoring');
 
 const storage = multer.diskStorage({
-    destination: path.join(__dirname, '../../public/images'),
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, '../../public/images'));
+    },
     filename:(req, file, callback) => {
         callback(null,req.user.id+'.'+file.mimetype.split('/')[1])
     }
