@@ -120,7 +120,7 @@ userRouter.post('/', [
 userRouter.post('/image-upload',auth, uploadMiddleware, async(req, res) => {
 
    try {
-       const imageName = await User.findByIdAndUpdate({_id:req.user.id},{profileImage: req.file.filename},{new: true, useFindAndModify:false}).select('profileImage -_id');
+       const imageName = await User.findByIdAndUpdate({_id:req.user.id},{profileImage: req.file.filename},{new: true, useFindAndModify:false}).select('profileImage -_id').exec();
        res.status(200).send(imageName)
    } catch (err) {
        console.log(err);
