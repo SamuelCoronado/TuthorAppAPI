@@ -294,6 +294,17 @@ userRouter.get('/:userId/sessions', auth, async(req, res) => {
     }
 });
 
+userRouter.get('/:userId/tutorings', auth, async(req, res) => {
+    try {
+        
+        const userTutorings = await Tutoring.find({tutor: req.params.userId});
+        res.status(200).send(userTutorings)
+
+    } catch (err) {
+        res.status(500);
+    }
+})
+
 userRouter.get('/:userId/profileImage', async(req,res) => {
     try {
         
