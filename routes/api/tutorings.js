@@ -52,7 +52,8 @@ tutoringRouter.get('/:tutoringId', async(req, res) => {
         const tutoringDetails = await Tutoring.findById(req.params.tutoringId).populate('tutor','name _id')
         res.status(200).json(tutoringDetails);        
     } catch (err) {
-        console.log(err);
+        
+        res.status(500).send(err);
         
     }
 
@@ -70,7 +71,8 @@ tutoringRouter.get('/:tutoringId/sessions', auth, async(req, res) => {
         res.status(200).send(sessions);
 
     } catch (err) {
-        console.log(err);
+        
+        res.status(500).send(err)
         
     }
 });
@@ -88,7 +90,8 @@ tutoringRouter.post('/:tutoringId/session', auth, async(req, res) => {
         console.log(sessions);
         res.status(200).send(sessions)
     } catch (error) {
-        console.log(error);
+       
+        res.status(500).send(err);
     } 
 })
 
@@ -97,11 +100,17 @@ tutoringRouter.get('/search/:term', async(req, res) => {
     const {term} = req.params
     console.log(term);
     const regex = new RegExp(`${term}`,'i')
-    const tutorings = await Tutoring.find({
-        $or:[{signature: regex}, {tags: regex}]
-    });
 
-    res.status(200).send(tutorings)
+    try {    
+        const tutorings = await Tutoring.find({
+            $or:[{signature: regex}, {tags: regex}]
+        });
+
+        res.status(200).send(tutorings)
+    } catch (error) {
+        res.status(500).send(err);
+    }
+        
 })
 
 module.exports = tutoringRouter

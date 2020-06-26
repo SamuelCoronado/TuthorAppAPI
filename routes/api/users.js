@@ -41,7 +41,7 @@ userRouter.get('/emails', async(req, res) => {
         
 
     } catch (err) {
-        console.log(err);
+        res.status(500).send(err);
     }
 })
 
@@ -125,7 +125,7 @@ userRouter.post('/image-upload',auth, uploadMiddleware, async(req, res) => {
        const imageName = await User.findByIdAndUpdate({_id:req.user.id},{profileImage: req.file.filename},{new: true, useFindAndModify:false}).select('profileImage -_id').exec();
        res.status(200).send(imageName)
    } catch (err) {
-       console.log(err);
+       res.status(500).send(err);
        
    }
    
@@ -139,7 +139,7 @@ userRouter.get('/:userId', async(req, res) => {
         res.json(user)
         
     } catch (err) {
-        console.log(err);      
+       res.status(500).send(err);
     }
 
 
@@ -160,7 +160,7 @@ userRouter.put('/studies', auth, async(req, res) => {
     res.status(200).json(updateUser); 
         
     } catch (err) {
-        console.error(err);
+        res.status(500).send(err)
     }
 });
 
@@ -173,7 +173,7 @@ userRouter.delete('/studies/:studyId', auth, async(req, res) => {
         res.status(200).json(updateUser);
 
     } catch (err) {
-        console.error(err);
+        res.status(500).send(err)
     }
     
 
@@ -186,7 +186,7 @@ userRouter.put('/about', auth, async(req, res) => {
         res.status(200).json(updateUser);
         
     } catch (err) {
-        console.error(err);
+        res.status(500).send(err)
     }
 });
 
@@ -211,7 +211,7 @@ userRouter.put('/updateSessions', auth, async(req, res) => {
         res.status(200).send(sessionsToSend);
 
     } catch (err) {
-        console.log(err);
+        res.status(500).send(err)
     }
 })
 
@@ -246,7 +246,7 @@ userRouter.post('/:userId/opinionsAsTutor', auth, async(req, res) => {
         res.status(200).json({updatedSessions, takenSessions});
 
     } catch (err) {
-        console.error(err);
+        res.status(500).send(err)
     }
 });
 
@@ -279,7 +279,7 @@ userRouter.post('/:userId/opinionsAsStudent', auth, async(req, res) => {
         res.status(200).json({updatedSessions, givenSessions});
 
     } catch (err) {
-        console.error(err);
+        res.status(500).send(err)
     }
 })
 
@@ -290,7 +290,7 @@ userRouter.get('/:userId/sessions', auth, async(req, res) => {
         res.status(200).send(userSessions);
 
     } catch (err) {
-        console.log(err);
+        res.status(500).send(err)
     }
 });
 
@@ -301,7 +301,7 @@ userRouter.get('/:userId/tutorings', auth, async(req, res) => {
         res.status(200).send(userTutorings)
 
     } catch (err) {
-        res.status(500);
+        res.status(500).send(err);
     }
 })
 
@@ -312,7 +312,7 @@ userRouter.get('/:userId/profileImage', async(req,res) => {
         res.send(profileImage);
 
     } catch (err) {
-        console.log(err);
+        res.status(500).send(err);
     }
 })
 
